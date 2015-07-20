@@ -5,7 +5,7 @@ var TodoItem = React.createClass({displayName: "TodoItem",
     render: function() {
         var todos = this.props.todoItem.map(function(item,key){
             return React.createElement("p", {key: key}, 
-            item
+            item, React.createElement("input", {id: "checkbox1", type: "checkbox"})
             );
         });
 
@@ -21,20 +21,29 @@ var App = React.createClass({displayName: "App",
   getInitialState: function(){
       return {
           item: [],
-          userInput: "Add a todo..."
       };
   },
 
   addNote: function(event){
     var items = this.state.item;
-    console.log('event added action ' + event)
+
+    console.log('event added action ' + event);
     var newItem = React.findDOMNode(this.refs.input);
-    items.push(newItem.value);
+    newItem.value.length > 0 ? items.push(newItem.value) : console.error("empty todo add");
+
     this.setState({
         item: items,
-        userInput: ""
+    }, function(){
+        newItem.value = "";
+        newItem.focus();
     });
 
+  },
+
+  keyHandler: function(event) {
+      if (event.key === "Enter") {
+        this.addNote();
+      }
   },
 
 
@@ -42,8 +51,8 @@ var App = React.createClass({displayName: "App",
 
     return React.createElement("div", {className: "listView"}, 
       React.createElement(TodoItem, {todoItem: this.state.item}), 
-      React.createElement("input", {type: "text", ref: "input", placeholder: this.state.userInput}), 
-      React.createElement("button", {onClick: this.addNote}, "Add")
+      React.createElement("input", {type: "text", ref: "input", onKeyDown: this.keyHandler, placeholder: "I need to..."}), 
+      React.createElement("button", {className: "button", onClick: this.addNote}, "Add")
     );
 
   }
